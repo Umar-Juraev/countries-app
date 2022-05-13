@@ -1,8 +1,12 @@
 import { Card as AntdCard, Button, Row } from 'antd';
 
-const Card = ({ data }) => {
+const Card = ({ data, handleVisible, setCountry }) => {
 
-    console.log(data);
+    const handleCard = (data) => {
+        handleVisible()
+        setCountry(data)
+    }
+
     return (
         <AntdCard
             title={data.name?.common}
@@ -15,7 +19,7 @@ const Card = ({ data }) => {
                 <li> Qitasi: {data.continents}</li>
             </ul>
             <Row justify={'end'} >
-                <Button type={'primary'}  >Batafsil ma'lumot</Button>
+                <Button type={'primary'} onClick={() => handleCard(data)}  >Batafsil ma'lumot</Button>
             </Row>
         </AntdCard>)
 }

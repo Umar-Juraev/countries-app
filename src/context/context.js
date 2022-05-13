@@ -1,10 +1,12 @@
 import axios from "axios";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const ContextProvider = createContext()
 export const Store = () => useContext(ContextProvider)
 
 const Context = ({ children }) => {
+    const [country, setCountry] = useState({})
+    const ref = useRef('')
     const [countries, setCountries] = useState({
         loading: true,
         data: [],
@@ -17,11 +19,35 @@ const Context = ({ children }) => {
             .catch(err => setCountries({ ...countries, loading: false, error: err })
             )
     }
+    const searchValue = () => {
+        const searchText = ref.current?.input?.defaultValue
+        if (searchText.trim()) {
+            (async function getSearchData() {
+                const res = await axios.get(`https://restcountries.com/v3.1/name/${searchText}`)
+                setCountries({ ...countries, loading: false, data: res.data })
+            })()
+        }
+        else {
+            fetchCountries()
+        }
+    }
+    const sortedData = () => {
+        const sorted = countries.data.sort((a, b) => a.name?.common < b.name?.common ? -1 : 1)
+        setCountries({ ...countries, loading: false, data: sorted })
+    }
+
     useEffect(() => {
         fetchCountries()
     }, [])
 
-    return <ContextProvider.Provider value={{ countries }}>
+    return <ContextProvider.Provider value={{
+        countries,
+        country,
+        ref,
+        setCountry,
+        searchValue,
+        sortedData
+    }}>
         {children}
     </ContextProvider.Provider>
 }
